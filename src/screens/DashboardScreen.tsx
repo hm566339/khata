@@ -1,5 +1,5 @@
-import { Button, Card, CurrencyDisplay, Header, Loading } from "@components";
-import { COLORS, LABELS_HI, SIZES } from "@constants";
+import { Button, Card, CurrencyDisplay, Header, Loading, StatCard, ActionCard, Badge } from "@components";
+import { COLORS, LABELS_HI, SIZES, SHADOWS } from "@constants";
 import * as db from "@database/queries";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -74,70 +74,114 @@ export const DashboardScreen: React.FC = () => {
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
+        showsVerticalScrollIndicator={false}
       >
-        {/* Stats Cards */}
-        <Card style={styles.statCard}>
-          <Text style={styles.statLabel}>{LABELS_HI.todaysSales}</Text>
-          <CurrencyDisplay amount={stats.todaySales} size="large" />
-        </Card>
-
-        <Card style={styles.statCard}>
-          <Text style={styles.statLabel}>{LABELS_HI.totalCredit}</Text>
-          <CurrencyDisplay amount={stats.totalUdhaar} size="large" />
-        </Card>
-
-        <Card style={styles.statCard}>
-          <View style={styles.statRow}>
-            <View>
-              <Text style={styles.statLabel}>{LABELS_HI.lowStockItems}</Text>
-              <Text style={styles.statValue}>{stats.lowStockCount} आइटम</Text>
+        {/* Greeting Card */}
+        <Card variant="elevated" style={styles.greetingCard} animated>
+          <View style={styles.greetingContent}>
+            <Text style={styles.greetingEmoji}>🙏</Text>
+            <View style={styles.greetingText}>
+              <Text style={styles.greeting}>नमस्ते!</Text>
+              <Text style={styles.greetingSubtitle}>आपकी दुकान आज तैयार है</Text>
             </View>
-            <TouchableOpacity
-              onPress={() => router.push("/inventory")}
-              style={styles.viewButton}
-            >
-              <Text style={styles.viewButtonText}>देखें</Text>
-            </TouchableOpacity>
           </View>
         </Card>
 
-        <Card style={styles.statCard}>
-          <Text style={styles.statLabel}>{LABELS_HI.totalCustomers}</Text>
-          <Text style={styles.statValue}>{stats.totalCustomers} ग्राहक</Text>
-        </Card>
+        {/* Stats Grid - Premium Cards */}
+        <View style={styles.statsGrid}>
+          <StatCard
+            icon="💰"
+            label={LABELS_HI.todaysSales}
+            value={`₹${stats.todaySales.toLocaleString('hi-IN')}`}
+            color={COLORS.primary}
+            style={styles.statCardSmall}
+            animateValue
+          />
+          <StatCard
+            icon="📊"
+            label={LABELS_HI.totalCredit}
+            value={`₹${stats.totalUdhaar.toLocaleString('hi-IN')}`}
+            color={COLORS.secondary}
+            style={styles.statCardSmall}
+            animateValue
+          />
+        </View>
+
+        <View style={styles.statsGrid}>
+          <StatCard
+            icon="📦"
+            label={LABELS_HI.lowStockItems}
+            value={`${stats.lowStockCount}`}
+            color={COLORS.warning}
+            style={styles.statCardSmall}
+            animateValue
+          />
+          <StatCard
+            icon="👥"
+            label={LABELS_HI.totalCustomers}
+            value={`${stats.totalCustomers}`}
+            color={COLORS.secondary}
+            style={styles.statCardSmall}
+            animateValue
+          />
+        </View>
 
         {/* Quick Actions */}
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{LABELS_HI.quickActions}</Text>
 
-          <View style={styles.buttonRow}>
-            <Button
-              title={LABELS_HI.newBill}
+          <View style={styles.actionGrid}>
+            <ActionCard
+              icon="📝"
+              label={LABELS_HI.newBill}
+              backgroundColor={COLORS.primary}
               onPress={() => router.push("/billing")}
-              style={styles.actionButton}
             />
-            <Button
-              title={LABELS_HI.addCustomer}
+            <ActionCard
+              icon="➕"
+              label={LABELS_HI.addCustomer}
+              backgroundColor={COLORS.secondary}
               onPress={() => router.push("/customers")}
-              variant="secondary"
-              style={styles.actionButton}
             />
           </View>
 
-          <View style={styles.buttonRow}>
-            <Button
-              title={LABELS_HI.addCredit}
+          <View style={styles.actionGrid}>
+            <ActionCard
+              icon="💳"
+              label={LABELS_HI.addCredit}
+              backgroundColor="#F59E0B"
               onPress={() => router.push("/customers")}
-              variant="success"
-              style={styles.actionButton}
             />
-            <Button
-              title={LABELS_HI.addProduct}
+            <ActionCard
+              icon="📦"
+              label={LABELS_HI.addProduct}
+              backgroundColor={COLORS.primary}
               onPress={() => router.push("/inventory")}
-              variant="outline"
-              style={styles.actionButton}
             />
           </View>
+        </View>
+
+        {/* Additional Info */}
+        <View style={styles.infoSection}>
+          <Card style={styles.infoCard}>
+            <View style={styles.infoContent}>
+              <Text style={styles.infoTitle}>आज का सारांश</Text>
+              {stats.todaySales > 0 && (
+                <Badge
+                  label={`${LABELS_HI.todaysSales}: ₹${stats.todaySales}`}
+                  variant="success"
+                  style={styles.infoBadge}
+                />
+              )}
+              {stats.totalUdhaar > 0 && (
+                <Badge
+                  label={`${LABELS_HI.totalCredit}: ₹${stats.totalUdhaar}`}
+                  variant="warning"
+                  style={styles.infoBadge}
+                />
+              )}
+            </View>
+          </Card>
         </View>
       </ScrollView>
     </View>
@@ -147,60 +191,78 @@ export const DashboardScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.background || COLORS.gray50,
   },
   content: {
     flex: 1,
-    padding: SIZES.md,
+    paddingHorizontal: SIZES.md,
+    paddingVertical: SIZES.lg,
   },
-  statCard: {
-    backgroundColor: COLORS.white,
-    borderRadius: SIZES.borderRadiusLg,
-    padding: SIZES.lg,
-    marginBottom: SIZES.md,
+  greetingCard: {
+    backgroundColor: COLORS.primary,
+    marginBottom: SIZES.lg,
   },
-  statLabel: {
-    fontSize: SIZES.fontSizeSm,
-    color: COLORS.textSecondary,
-    marginBottom: SIZES.sm,
-  },
-  statValue: {
-    fontSize: SIZES.fontSizeXl,
-    fontWeight: "700",
-    color: COLORS.textPrimary,
-    marginTop: SIZES.sm,
-  },
-  statRow: {
+  greetingContent: {
     flexDirection: "row",
-    justifyContent: "space-between",
     alignItems: "center",
   },
-  viewButton: {
-    paddingHorizontal: SIZES.md,
-    paddingVertical: SIZES.sm,
-    backgroundColor: COLORS.primaryLight,
-    borderRadius: SIZES.borderRadiusMd,
+  greetingEmoji: {
+    fontSize: 48,
+    marginRight: SIZES.lg,
   },
-  viewButtonText: {
-    color: COLORS.white,
-    fontWeight: "600",
-    fontSize: SIZES.fontSizeSm,
+  greetingText: {
+    flex: 1,
   },
-  section: {
-    marginTop: SIZES.lg,
-  },
-  sectionTitle: {
-    fontSize: SIZES.fontSizeLg,
+  greeting: {
+    fontSize: SIZES.fontSizeXl,
     fontWeight: "700",
-    color: COLORS.textPrimary,
-    marginBottom: SIZES.md,
+    color: COLORS.white,
+    marginBottom: SIZES.xs,
   },
-  buttonRow: {
+  greetingSubtitle: {
+    fontSize: SIZES.fontSizeMd,
+    color: "rgba(255, 255, 255, 0.85)",
+  },
+  statsGrid: {
     flexDirection: "row",
     gap: SIZES.md,
     marginBottom: SIZES.md,
   },
-  actionButton: {
+  statCardSmall: {
     flex: 1,
+    marginBottom: 0,
+  },
+  section: {
+    marginTop: SIZES.xl,
+    marginBottom: SIZES.lg,
+  },
+  sectionTitle: {
+    fontSize: SIZES.fontSizeLg,
+    fontWeight: "700",
+    color: COLORS.text || COLORS.textPrimary,
+    marginBottom: SIZES.lg,
+  },
+  actionGrid: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    marginBottom: SIZES.md,
+  },
+  infoSection: {
+    marginBottom: SIZES.xl,
+  },
+  infoCard: {
+    backgroundColor: COLORS.surface || COLORS.white,
+  },
+  infoContent: {
+    gap: SIZES.sm,
+  },
+  infoTitle: {
+    fontSize: SIZES.fontSizeMd,
+    fontWeight: "700",
+    color: COLORS.text || COLORS.textPrimary,
+    marginBottom: SIZES.sm,
+  },
+  infoBadge: {
+    marginBottom: SIZES.xs,
   },
 });

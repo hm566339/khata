@@ -5,8 +5,10 @@ import {
     Loading,
     StatusBadge,
     TextInput,
+    StockIndicator,
+    EmptyState,
 } from "@components";
-import { BUSINESS, COLORS, LABELS_HI, SIZES } from "@constants";
+import { BUSINESS, COLORS, LABELS_HI, SIZES, SHADOWS } from "@constants";
 import * as db from "@database/queries";
 import { useFocusEffect } from "@react-navigation/native";
 import React, { useCallback, useEffect, useState } from "react";
@@ -220,16 +222,19 @@ export const InventoryScreen: React.FC = () => {
       )}
 
       {products.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>कोई उत्पाद नहीं</Text>
-          <Button
-            title="नया उत्पाद जोड़ें"
-            onPress={() => {
-              setEditingId(null);
-              setFormData({ name: "", price: "", stock: "", category: "" });
-              setShowAddForm(true);
+        <View style={styles.emptyContainer}>
+          <EmptyState
+            icon="📦"
+            title="कोई उत्पाद नहीं"
+            subtitle="अपने इन्वेंटरी को प्रबंधित करने के लिए पहला उत्पाद जोड़ें"
+            action={{
+              label: "नया उत्पाद जोड़ें",
+              onPress: () => {
+                setEditingId(null);
+                setFormData({ name: "", price: "", stock: "", category: "" });
+                setShowAddForm(true);
+              },
             }}
-            style={{ marginTop: SIZES.lg }}
           />
         </View>
       ) : (
@@ -237,32 +242,32 @@ export const InventoryScreen: React.FC = () => {
           data={products}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <Card style={styles.productCard}>
+            <Card variant="elevated" animated style={styles.productCard}>
               <View style={styles.productHeader}>
                 <View style={styles.productInfo}>
-                  <Text style={styles.productName}>{item.name}</Text>
+                  <View style={styles.productNameRow}>
+                    <Text style={styles.productName}>{item.name}</Text>
+                    <StatusBadge
+                      status={getStockStatus(item.stock) as any}
+                      label={getStockLabel(item.stock)}
+                    />
+                  </View>
                   {item.category && (
                     <Text style={styles.productCategory}>{item.category}</Text>
                   )}
                 </View>
-                <StatusBadge
-                  status={getStockStatus(item.stock) as any}
-                  label={getStockLabel(item.stock)}
-                />
               </View>
 
               <View style={styles.productDetails}>
                 <View style={styles.detailItem}>
                   <Text style={styles.detailLabel}>कीमत</Text>
                   <Text style={styles.detailValue}>
-                    ₹{item.price.toFixed(2)}
+                    ₹{item.price.toLocaleString('hi-IN')}
                   </Text>
                 </View>
-                <View style={styles.detailItem}>
-                  <Text style={styles.detailLabel}>स्टॉक</Text>
-                  <Text style={styles.detailValue}>{item.stock} इकाई</Text>
-                </View>
               </View>
+
+              <StockIndicator stock={item.stock} lowStockThreshold={BUSINESS.defaultLowStockThreshold} />
 
               <View style={styles.productActions}>
                 <Button
@@ -296,15 +301,16 @@ export const InventoryScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.background || COLORS.gray50,
   },
   addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
+    ...SHADOWS.md,
   },
   addButtonText: {
     color: COLORS.white,
@@ -318,12 +324,13 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: SIZES.fontSizeLg,
     fontWeight: "700",
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
     marginBottom: SIZES.md,
   },
   formButtons: {
     flexDirection: "row",
     marginBottom: 0,
+    gap: SIZES.md,
   },
   list: {
     flex: 1,
@@ -334,21 +341,22 @@ const styles = StyleSheet.create({
     marginBottom: SIZES.md,
   },
   productHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
     marginBottom: SIZES.md,
-    paddingBottom: SIZES.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray100,
   },
   productInfo: {
     flex: 1,
   },
+  productNameRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: SIZES.sm,
+  },
   productName: {
     fontSize: SIZES.fontSizeMd,
     fontWeight: "600",
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
+    flex: 1,
   },
   productCategory: {
     fontSize: SIZES.fontSizeSm,
@@ -356,12 +364,10 @@ const styles = StyleSheet.create({
     marginTop: SIZES.xs,
   },
   productDetails: {
-    flexDirection: "row",
-    justifyContent: "space-between",
     marginBottom: SIZES.md,
     paddingBottom: SIZES.md,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray100,
+    borderBottomColor: COLORS.border || COLORS.gray200,
   },
   detailItem: {
     flex: 1,
@@ -373,23 +379,17 @@ const styles = StyleSheet.create({
   detailValue: {
     fontSize: SIZES.fontSizeMd,
     fontWeight: "600",
-    color: COLORS.textPrimary,
+    color: COLORS.primary,
     marginTop: SIZES.xs,
   },
   productActions: {
     flexDirection: "row",
-    marginBottom: -SIZES.md,
-    marginHorizontal: -SIZES.md,
+    marginTop: SIZES.md,
+    gap: SIZES.md,
   },
-  emptyState: {
+  emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: SIZES.lg,
-  },
-  emptyStateText: {
-    fontSize: SIZES.fontSizeLg,
-    color: COLORS.textSecondary,
-    marginBottom: SIZES.lg,
   },
 });

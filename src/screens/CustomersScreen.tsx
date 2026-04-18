@@ -5,8 +5,11 @@ import {
     Header,
     Loading,
     TextInput,
+    Avatar,
+    Badge,
+    EmptyState,
 } from "@components";
-import { COLORS, LABELS_HI, SIZES } from "@constants";
+import { COLORS, LABELS_HI, SIZES, SHADOWS } from "@constants";
 import * as db from "@database/queries";
 import { useFocusEffect } from "@react-navigation/native";
 import { useRouter } from "expo-router";
@@ -178,12 +181,15 @@ export const CustomersScreen: React.FC = () => {
       )}
 
       {customers.length === 0 ? (
-        <View style={styles.emptyState}>
-          <Text style={styles.emptyStateText}>कोई ग्राहक नहीं</Text>
-          <Button
-            title="नया ग्राहक जोड़ें"
-            onPress={() => setShowAddForm(true)}
-            style={{ marginTop: SIZES.lg }}
+        <View style={styles.emptyContainer}>
+          <EmptyState
+            icon="👥"
+            title="कोई ग्राहक नहीं"
+            subtitle="अपने पहले ग्राहक को जोड़ने के लिए नीचे का बटन दबाएं"
+            action={{
+              label: "नया ग्राहक जोड़ें",
+              onPress: () => setShowAddForm(true),
+            }}
           />
         </View>
       ) : (
@@ -197,20 +203,24 @@ export const CustomersScreen: React.FC = () => {
               }
               activeOpacity={0.7}
             >
-              <Card style={styles.customerCard}>
-                <View style={styles.customerHeader}>
+              <Card variant="elevated" animated style={styles.customerCard}>
+                <View style={styles.customerContent}>
+                  <Avatar name={item.name} size="medium" />
                   <View style={styles.customerInfo}>
-                    <Text style={styles.customerName}>{item.name}</Text>
+                    <View style={styles.nameRow}>
+                      <Text style={styles.customerName}>{item.name}</Text>
+                      {item.balance !== undefined && item.balance > 0 && (
+                        <Badge
+                          label={`बकाया: ₹${item.balance.toLocaleString('hi-IN')}`}
+                          variant="pending"
+                          size="small"
+                        />
+                      )}
+                    </View>
                     {item.phone && (
                       <Text style={styles.customerPhone}>{item.phone}</Text>
                     )}
                   </View>
-                  {item.balance !== undefined && item.balance > 0 && (
-                    <View style={styles.balanceContainer}>
-                      <Text style={styles.balanceLabel}>बकाया</Text>
-                      <CurrencyDisplay amount={item.balance} size="medium" />
-                    </View>
-                  )}
                 </View>
               </Card>
             </TouchableOpacity>
@@ -229,15 +239,16 @@ export const CustomersScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.background || COLORS.gray50,
   },
   addButton: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    borderRadius: 22,
     backgroundColor: COLORS.primary,
     justifyContent: "center",
     alignItems: "center",
+    ...SHADOWS.md,
   },
   addButtonText: {
     color: COLORS.white,
@@ -251,12 +262,13 @@ const styles = StyleSheet.create({
   formTitle: {
     fontSize: SIZES.fontSizeLg,
     fontWeight: "700",
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
     marginBottom: SIZES.md,
   },
   formButtons: {
     flexDirection: "row",
     marginBottom: 0,
+    gap: SIZES.md,
   },
   list: {
     flex: 1,
@@ -266,40 +278,34 @@ const styles = StyleSheet.create({
   customerCard: {
     marginBottom: SIZES.md,
   },
-  customerHeader: {
+  customerContent: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
+    gap: SIZES.md,
+    alignItems: "flex-start",
   },
   customerInfo: {
     flex: 1,
   },
+  nameRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    marginBottom: SIZES.xs,
+  },
   customerName: {
     fontSize: SIZES.fontSizeMd,
     fontWeight: "600",
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
+    flex: 1,
   },
   customerPhone: {
     fontSize: SIZES.fontSizeSm,
     color: COLORS.textSecondary,
     marginTop: SIZES.xs,
   },
-  balanceContainer: {
-    alignItems: "flex-end",
-  },
-  balanceLabel: {
-    fontSize: SIZES.fontSizeSm,
-    color: COLORS.textSecondary,
-  },
-  emptyState: {
+  emptyContainer: {
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    paddingHorizontal: SIZES.lg,
-  },
-  emptyStateText: {
-    fontSize: SIZES.fontSizeLg,
-    color: COLORS.textSecondary,
-    marginBottom: SIZES.lg,
   },
 });

@@ -1,5 +1,5 @@
-import { Button, Card, Header, TextInput } from "@components";
-import { COLORS, LABELS_HI, SIZES } from "@constants";
+import { Button, Card, Header, TextInput, Badge } from "@components";
+import { COLORS, LABELS_HI, SIZES, SHADOWS } from "@constants";
 import * as db from "@database/queries";
 import React, { useState } from "react";
 import {
@@ -130,16 +130,17 @@ export const SettingsScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.background || COLORS.gray50,
   },
   content: {
     flex: 1,
-    padding: SIZES.md,
+    paddingHorizontal: SIZES.md,
+    paddingVertical: SIZES.lg,
   },
   sectionTitle: {
     fontSize: SIZES.fontSizeMd,
     fontWeight: "700",
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
     marginBottom: SIZES.md,
   },
   settingRow: {
@@ -148,11 +149,11 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: SIZES.md,
     borderTopWidth: 1,
-    borderTopColor: COLORS.gray200,
+    borderTopColor: COLORS.border || COLORS.gray200,
   },
   settingLabel: {
     fontSize: SIZES.fontSizeMd,
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
   },
   infoRow: {
     flexDirection: "row",
@@ -160,7 +161,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: SIZES.md,
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray100,
+    borderBottomColor: COLORS.border || COLORS.gray100,
   },
   infoLabel: {
     fontSize: SIZES.fontSizeSm,
@@ -169,11 +170,12 @@ const styles = StyleSheet.create({
   },
   infoValue: {
     fontSize: SIZES.fontSizeSm,
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
   },
   dangerCard: {
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: COLORS.error,
     backgroundColor: COLORS.errorLight,
+    ...SHADOWS.sm,
   },
 });

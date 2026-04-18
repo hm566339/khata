@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, ViewStyle } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, StyleSheet, ViewStyle, Animated } from 'react-native';
 import { COLORS, SIZES, SHADOWS } from '@constants';
 
 interface CardProps {
@@ -7,6 +7,7 @@ interface CardProps {
   style?: ViewStyle;
   variant?: 'default' | 'elevated' | 'outline';
   onPress?: () => void;
+  animated?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -14,7 +15,27 @@ export const Card: React.FC<CardProps> = ({
   style,
   variant = 'default',
   onPress,
+  animated = false,
 }) => {
+  const fadeIn = React.useRef(new Animated.Value(animated ? 0 : 1)).current;
+  const slideUp = React.useRef(new Animated.Value(animated ? 20 : 0)).current;
+
+  useEffect(() => {
+    if (animated) {
+      Animated.parallel([
+        Animated.timing(fadeIn, {
+          toValue: 1,
+          duration: 400,
+          useNativeDriver: false,
+        }),
+        Animated.timing(slideUp, {
+          toValue: 0,
+          duration: 400,
+          useNativeDriver: false,
+        }),
+      ]).start();
+    }
+  }, [animated, fadeIn, slideUp]);
   const getCardStyle = () => {
     switch (variant) {
       case 'elevated':
@@ -37,15 +58,19 @@ export const Card: React.FC<CardProps> = ({
   };
 
   const content = (
-    <View
+    <Animated.View
       style={[
         styles.card,
         getCardStyle(),
+        {
+          opacity: fadeIn,
+          transform: [{ translateY: slideUp }],
+        },
         style,
       ]}
     >
       {children}
-    </View>
+    </Animated.View>
   );
 
   return content;

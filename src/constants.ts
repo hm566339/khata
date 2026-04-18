@@ -1,16 +1,16 @@
-// Colors
+// Colors - Light Mode
 export const COLORS = {
   // Primary
   primary: '#2563EB',
   primaryLight: '#3B82F6',
   primaryDark: '#1E40AF',
 
-  // Secondary
+  // Secondary (Emerald)
   secondary: '#10B981',
   secondaryLight: '#34D399',
   secondaryDark: '#059669',
 
-  // Alerts
+  // Status Colors
   error: '#EF4444',
   errorLight: '#FCA5A5',
   errorDark: '#DC2626',
@@ -22,6 +22,10 @@ export const COLORS = {
   success: '#10B981',
   successLight: '#D1FAE5',
   successDark: '#047857',
+
+  info: '#3B82F6',
+  infoLight: '#BFDBFE',
+  infoDark: '#1E40AF',
 
   // Neutral
   white: '#FFFFFF',
@@ -37,20 +41,62 @@ export const COLORS = {
   gray800: '#1F2937',
   gray900: '#111827',
 
-  // Status
+  // Payment Status
   pending: '#F59E0B',
   paid: '#10B981',
   cancelled: '#EF4444',
+  partial: '#3B82F6',
 
-  // Background
+  // Light Mode Specific
   background: '#F9FAFB',
-  backgroundDark: '#111827',
+  surface: '#FFFFFF',
+  surfaceSecondary: '#F3F4F6',
+  border: '#E5E7EB',
 
-  // Text
-  textPrimary: '#1F2937',
+  // Text - Light Mode
+  text: '#1F2937',
   textSecondary: '#6B7280',
-  textLight: '#9CA3AF',
-  textWhite: '#FFFFFF',
+  textTertiary: '#9CA3AF',
+  textInverse: '#FFFFFF',
+
+  // Dark Mode Specific (will be overridden based on theme)
+  backgroundDark: '#0F172A',
+  surfaceDark: '#1E293B',
+  surfaceSecondaryDark: '#334155',
+  borderDark: '#475569',
+  textDark: '#F1F5F9',
+  textSecondaryDark: '#CBD5E1',
+  textTertiaryDark: '#94A3B8',
+};
+
+// Dark mode color overrides
+export const COLORS_DARK = {
+  background: '#0F172A',
+  surface: '#1E293B',
+  surfaceSecondary: '#334155',
+  border: '#475569',
+  text: '#F1F5F9',
+  textSecondary: '#CBD5E1',
+  textTertiary: '#94A3B8',
+  
+  // Keep primary and secondary the same but can adjust if needed
+  primary: '#3B82F6',
+  secondary: '#10B981',
+  error: '#F87171',
+  warning: '#FBBF24',
+  success: '#34D399',
+  info: '#60A5FA',
+};
+
+// Gradients
+export const GRADIENTS = {
+  primary: ['#2563EB', '#3B82F6'],
+  secondary: ['#10B981', '#34D399'],
+  success: ['#10B981', '#6EE7B7'],
+  warning: ['#F59E0B', '#FBBF24'],
+  error: ['#EF4444', '#F87171'],
+  info: ['#3B82F6', '#60A5FA'],
+  premium: ['#2563EB', '#10B981'],
 };
 
 // Hindi Translations
@@ -280,22 +326,49 @@ export const BUSINESS = {
 
 // Animation durations (in milliseconds)
 export const ANIMATIONS = {
-  fast: 200,
-  normal: 300,
-  slow: 500,
+  // Timing
+  fast: 150,
+  normal: 250,
+  slow: 350,
+  veryFast: 100,
+  verySlow: 500,
+
+  // Easing functions
+  easing: {
+    easeInOut: 'cubic-bezier(0.4, 0, 0.2, 1)',
+    easeOut: 'cubic-bezier(0.0, 0, 0.2, 1)',
+    easeIn: 'cubic-bezier(0.4, 0, 1, 1)',
+    easeLinear: 'linear',
+  },
+
+  // Stagger delays for list animations
+  staggerDelay: 50,
+
+  // Press feedback timing
+  pressScale: 0.95,
+  pressOpacity: 0.8,
 };
 
 // Sizes
 export const SIZES = {
-  // Spacing
+  // Spacing scale
   xs: 4,
   sm: 8,
   md: 16,
   lg: 24,
   xl: 32,
   xxl: 48,
+  xxxl: 64,
 
-  // Border radius
+  // Border radius - for consistency
+  radiusSm: 4,
+  radiusMd: 8,
+  radiusLg: 12,
+  radiusXl: 16,
+  radiusXxl: 20,
+  radiusRound: 999,
+
+  // Commonly used radius
   borderRadiusSm: 4,
   borderRadiusMd: 8,
   borderRadiusLg: 12,
@@ -303,21 +376,95 @@ export const SIZES = {
   borderRadiusRound: 999,
 
   // Font sizes
+  fontSizeXxs: 10,
   fontSizeXs: 12,
   fontSizeSm: 14,
   fontSizeMd: 16,
   fontSizeLg: 18,
   fontSizeXl: 20,
   fontSizeXxl: 24,
+  fontSizeXxxl: 32,
+
+  // Font weights
+  fontWeightLight: '300',
+  fontWeightNormal: '400',
+  fontWeightMedium: '500',
+  fontWeightSemibold: '600',
+  fontWeightBold: '700',
 
   // Line heights
   lineHeightTight: 1.2,
   lineHeightNormal: 1.5,
   lineHeightRelaxed: 1.75,
+
+  // Icon sizes
+  iconXs: 16,
+  iconSm: 20,
+  iconMd: 24,
+  iconLg: 32,
+  iconXl: 48,
+
+  // Touch target minimum
+  minTouchTarget: 44,
+
+  // Card dimensions
+  avatarSizeSmall: 32,
+  avatarSizeMedium: 48,
+  avatarSizeLarge: 64,
 };
 
-// Shadow
+// Shadow - Premium depth system
 export const SHADOWS = {
+  // Subtle - cards, light elements
+  xs: {
+    elevation: 1,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 1,
+  },
+  // Light - standard cards
+  sm: {
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.08,
+    shadowRadius: 2,
+  },
+  // Medium - elevated cards, buttons
+  md: {
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+  },
+  // Large - modals, dropdowns
+  lg: {
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.14,
+    shadowRadius: 6,
+  },
+  // Extra large - important overlays
+  xl: {
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.16,
+    shadowRadius: 8,
+  },
+  // Premium - premium cards with depth
+  premium: {
+    elevation: 12,
+    shadowColor: '#2563EB',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+  },
+
+  // Legacy names for backward compatibility
   light: {
     elevation: 2,
     shadowColor: '#000',

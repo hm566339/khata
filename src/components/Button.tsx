@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -6,8 +6,9 @@ import {
   ViewStyle,
   TextStyle,
   ActivityIndicator,
+  Animated,
 } from 'react-native';
-import { COLORS, SIZES } from '@constants';
+import { COLORS, SIZES, SHADOWS, ANIMATIONS } from '@constants';
 
 interface ButtonProps {
   title: string;
@@ -30,6 +31,7 @@ export const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
+  const scaleValue = useRef(new Animated.Value(1)).current;
   const getBackgroundColor = () => {
     if (disabled) return COLORS.gray300;
     switch (variant) {
@@ -78,38 +80,65 @@ export const Button: React.FC<ButtonProps> = ({
   const borderWidth = variant === 'outline' ? 2 : 0;
   const borderColor = variant === 'outline' ? COLORS.primary : 'transparent';
 
+  const handlePressIn = () => {
+    Animated.timing(scaleValue, {
+      toValue: ANIMATIONS.pressScale,
+      duration: ANIMATIONS.veryFast,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.timing(scaleValue, {
+      toValue: 1,
+      duration: ANIMATIONS.veryFast,
+      useNativeDriver: true,
+    }).start();
+  };
+
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={disabled || loading}
+    <Animated.View
       style={[
-        styles.button,
         {
-          backgroundColor: getBackgroundColor(),
-          borderWidth,
-          borderColor,
-          ...getPadding(),
+          transform: [{ scale: scaleValue }],
         },
-        style,
       ]}
     >
-      {loading ? (
-        <ActivityIndicator color={getTextColor()} />
-      ) : (
-        <Text
-          style={[
-            styles.text,
-            {
-              color: getTextColor(),
-              fontSize: getFontSize(),
-            },
-            textStyle,
-          ]}
-        >
-          {title}
-        </Text>
-      )}
-    </TouchableOpacity>
+      <TouchableOpacity
+        onPress={onPress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled || loading}
+        style={[
+          styles.button,
+          {
+            backgroundColor: getBackgroundColor(),
+            borderWidth,
+            borderColor,
+            ...getPadding(),
+            ...SHADOWS.sm,
+          },
+          style,
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator color={getTextColor()} />
+        ) : (
+          <Text
+            style={[
+              styles.text,
+              {
+                color: getTextColor(),
+                fontSize: getFontSize(),
+              },
+              textStyle,
+            ]}
+          >
+            {title}
+          </Text>
+        )}
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 

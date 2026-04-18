@@ -6,8 +6,9 @@ import {
     Header,
     Loading,
     TextInput,
+    Badge,
 } from "@components";
-import { COLORS, LABELS_HI, SIZES } from "@constants";
+import { COLORS, LABELS_HI, SIZES, SHADOWS } from "@constants";
 import * as db from "@database/queries";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -226,20 +227,27 @@ export const BillingScreen: React.FC = () => {
 
         {/* Bill Items */}
         {billingItems.length > 0 && (
-          <Card>
-            <Text style={styles.sectionTitle}>बिल आइटम</Text>
+          <Card variant="elevated" animated>
+            <View style={styles.itemsHeader}>
+              <Text style={styles.sectionTitle}>बिल आइटम</Text>
+              <Badge label={`${billingItems.length} आइटम`} variant="info" />
+            </View>
             <FlatList
               scrollEnabled={false}
               data={billingItems}
               keyExtractor={(item) => item.productId.toString()}
-              renderItem={({ item }) => (
-                <View style={styles.billItem}>
+              renderItem={({ item, index }) => (
+                <View style={[styles.billItem, index !== billingItems.length - 1 && styles.billItemBorder]}>
                   <View style={styles.itemInfo}>
                     <Text style={styles.itemName}>{item.productName}</Text>
-                    <Text style={styles.itemDetails}>
-                      {item.quantity} x ₹{item.price.toFixed(2)} = ₹
-                      {item.total.toFixed(2)}
-                    </Text>
+                    <View style={styles.itemDetailsRow}>
+                      <Text style={styles.itemDetails}>
+                        {item.quantity} × ₹{item.price.toLocaleString('hi-IN')}
+                      </Text>
+                      <Text style={styles.itemTotal}>
+                        ₹{item.total.toLocaleString('hi-IN')}
+                      </Text>
+                    </View>
                   </View>
                   <TouchableOpacity
                     onPress={() => removeItem(item.productId)}
@@ -254,7 +262,7 @@ export const BillingScreen: React.FC = () => {
         )}
 
         {/* Totals */}
-        <Card>
+        <Card variant="elevated" animated style={styles.summaryCard}>
           <View style={styles.totalRow}>
             <Text style={styles.totalLabel}>कुल:</Text>
             <CurrencyDisplay amount={subtotal} />
@@ -268,10 +276,16 @@ export const BillingScreen: React.FC = () => {
             keyboardType="decimal-pad"
           />
 
-          <View style={[styles.totalRow, styles.finalTotal]}>
+          <View style={styles.summaryDivider} />
+
+          <View style={styles.finalTotal}>
             <Text style={styles.finalTotalLabel}>कुल राशि:</Text>
-            <CurrencyDisplay amount={total} size="large" />
+            <Text style={styles.finalTotalAmount}>₹{total.toLocaleString('hi-IN')}</Text>
           </View>
+          
+          {selectedCustomer && (
+            <Badge label="उधार पर बिल" variant="warning" style={styles.udhaarBadge} />
+          )}
         </Card>
 
         {/* Save Button */}
@@ -302,25 +316,34 @@ export const BillingScreen: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: COLORS.background,
+    backgroundColor: COLORS.background || COLORS.gray50,
   },
   content: {
     flex: 1,
-    padding: SIZES.md,
+    paddingHorizontal: SIZES.md,
+    paddingVertical: SIZES.lg,
   },
   sectionTitle: {
     fontSize: SIZES.fontSizeMd,
     fontWeight: "700",
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
     marginBottom: SIZES.md,
+  },
+  itemsHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: SIZES.lg,
   },
   billItem: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: SIZES.md,
+  },
+  billItemBorder: {
     borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray200,
+    borderBottomColor: COLORS.border || COLORS.gray200,
   },
   itemInfo: {
     flex: 1,
@@ -328,21 +351,32 @@ const styles = StyleSheet.create({
   itemName: {
     fontSize: SIZES.fontSizeMd,
     fontWeight: "600",
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
+    marginBottom: SIZES.xs,
   },
   itemDetails: {
     fontSize: SIZES.fontSizeSm,
     color: COLORS.textSecondary,
-    marginTop: SIZES.xs,
+  },
+  itemDetailsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  itemTotal: {
+    fontSize: SIZES.fontSizeMd,
+    fontWeight: "700",
+    color: COLORS.primary,
   },
   removeButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     backgroundColor: COLORS.errorLight,
     justifyContent: "center",
     alignItems: "center",
     marginLeft: SIZES.md,
+    ...SHADOWS.sm,
   },
   removeButtonText: {
     color: COLORS.error,
@@ -354,28 +388,41 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     paddingVertical: SIZES.md,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.gray200,
   },
   totalLabel: {
     fontSize: SIZES.fontSizeMd,
     color: COLORS.textSecondary,
   },
-  finalTotal: {
-    borderBottomWidth: 0,
-    backgroundColor: COLORS.gray50,
-    paddingHorizontal: SIZES.md,
-    marginHorizontal: -SIZES.md,
-    paddingVertical: SIZES.lg,
+  summaryCard: {
+    marginBottom: SIZES.lg,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: COLORS.border || COLORS.gray200,
     marginVertical: SIZES.md,
+  },
+  finalTotal: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingVertical: SIZES.lg,
   },
   finalTotalLabel: {
     fontSize: SIZES.fontSizeLg,
     fontWeight: "700",
-    color: COLORS.textPrimary,
+    color: COLORS.text || COLORS.textPrimary,
+  },
+  finalTotalAmount: {
+    fontSize: SIZES.fontSizeXxl,
+    fontWeight: "700",
+    color: COLORS.primary,
+  },
+  udhaarBadge: {
+    marginTop: SIZES.md,
   },
   actionButtons: {
     marginBottom: SIZES.lg,
+    gap: SIZES.md,
   },
   addProduct: {
     marginBottom: 0,
