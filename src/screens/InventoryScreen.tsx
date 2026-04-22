@@ -21,8 +21,10 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import { useTranslation } from "react-i18next";
 
 export const InventoryScreen: React.FC = () => {
+  const { t } = useTranslation();
   const [products, setProducts] = useState<db.Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -59,7 +61,7 @@ export const InventoryScreen: React.FC = () => {
 
   const handleAddProduct = async () => {
     if (!formData.name.trim() || !formData.price || !formData.stock) {
-      Alert.alert("त्रुटि", "कृपया सभी आवश्यक फील्ड भरें");
+      Alert.alert(t("common.error"), "Please fill all required fields");
       return;
     }
 
@@ -72,7 +74,7 @@ export const InventoryScreen: React.FC = () => {
           parseInt(formData.stock),
           formData.category || undefined,
         );
-        Alert.alert("सफल", "उत्पाद अपडेट किया गया");
+        Alert.alert(t("common.success"), "Product updated successfully");
       } else {
         await db.addProduct(
           formData.name,
@@ -80,7 +82,7 @@ export const InventoryScreen: React.FC = () => {
           parseInt(formData.stock),
           formData.category || undefined,
         );
-        Alert.alert("सफल", "उत्पाद जोड़ा गया");
+        Alert.alert(t("common.success"), "Product added successfully");
       }
 
       setFormData({ name: "", price: "", stock: "", category: "" });
@@ -89,25 +91,25 @@ export const InventoryScreen: React.FC = () => {
       loadProducts();
     } catch (error) {
       console.error("Failed to save product:", error);
-      Alert.alert("त्रुटि", "उत्पाद सहेजने में विफल");
+      Alert.alert(t("common.error"), "Failed to save product");
     }
   };
 
   const handleDeleteProduct = async (id: number) => {
-    Alert.alert("पुष्टि करें", "क्या आप यह उत्पाद हटाना चाहते हैं?", [
+    Alert.alert(t("common.warning"), t("messages.confirm_delete"), [
       {
-        text: "रद्द करें",
+        text: t("common.cancel"),
         onPress: () => {},
       },
       {
-        text: "हटाएँ",
+        text: t("common.delete"),
         onPress: async () => {
           try {
             await db.deleteProduct(id);
-            Alert.alert("सफल", "उत्पाद हटाया गया");
+            Alert.alert(t("common.success"), "Product deleted successfully");
             loadProducts();
           } catch (error) {
-            Alert.alert("त्रुटि", "उत्पाद हटाने में विफल");
+            Alert.alert(t("common.error"), "Failed to delete product");
           }
         },
         style: "destructive",
@@ -133,9 +135,9 @@ export const InventoryScreen: React.FC = () => {
   };
 
   const getStockLabel = (stock: number) => {
-    if (stock === 0) return "स्टॉक खत्म";
-    if (stock <= BUSINESS.defaultLowStockThreshold) return "कम स्टॉक";
-    return "उपलब्ध";
+    if (stock === 0) return "Out of stock";
+    if (stock <= BUSINESS.defaultLowStockThreshold) return "Low stock";
+    return "Available";
   };
 
   const onRefresh = useCallback(() => {
@@ -150,7 +152,7 @@ export const InventoryScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header
-        title={LABELS_HI.inventory}
+        title={t("navigation.reports")}
         rightElement={
           <TouchableOpacity
             onPress={() => {
@@ -168,47 +170,47 @@ export const InventoryScreen: React.FC = () => {
       {showAddForm && (
         <Card style={styles.formCard}>
           <Text style={styles.formTitle}>
-            {editingId ? "उत्पाद संपादित करें" : "नया उत्पाद जोड़ें"}
+            {editingId ? t("transactions.edit_transaction") : t("transactions.add_new")}
           </Text>
 
           <TextInput
-            label={LABELS_HI.productName}
-            placeholder="उत्पाद का नाम"
+            label={t("contacts.name")}
+            placeholder="Product name"
             value={formData.name}
             onChangeText={(name) => setFormData({ ...formData, name })}
           />
 
           <TextInput
-            label={LABELS_HI.price}
-            placeholder="कीमत"
+            label={t("transactions.amount")}
+            placeholder="Price"
             value={formData.price}
             onChangeText={(price) => setFormData({ ...formData, price })}
             keyboardType="decimal-pad"
           />
 
           <TextInput
-            label={LABELS_HI.stock}
-            placeholder="स्टॉक मात्रा"
+            label={t("transactions.amount")}
+            placeholder="Stock quantity"
             value={formData.stock}
             onChangeText={(stock) => setFormData({ ...formData, stock })}
             keyboardType="numeric"
           />
 
           <TextInput
-            label={LABELS_HI.category}
-            placeholder="श्रेणी (वैकल्पिक)"
+            label="Category"
+            placeholder="Category (optional)"
             value={formData.category}
             onChangeText={(category) => setFormData({ ...formData, category })}
           />
 
           <View style={styles.formButtons}>
             <Button
-              title={LABELS_HI.save}
+              title={t("common.save")}
               onPress={handleAddProduct}
               style={{ flex: 1, marginRight: SIZES.md }}
             />
             <Button
-              title={LABELS_HI.cancel}
+              title={t("common.cancel")}
               onPress={() => {
                 setShowAddForm(false);
                 setEditingId(null);
@@ -225,10 +227,10 @@ export const InventoryScreen: React.FC = () => {
         <View style={styles.emptyContainer}>
           <EmptyState
             icon="📦"
-            title="कोई उत्पाद नहीं"
-            subtitle="अपने इन्वेंटरी को प्रबंधित करने के लिए पहला उत्पाद जोड़ें"
+            title="No products"
+            subtitle="Add your first product to manage inventory"
             action={{
-              label: "नया उत्पाद जोड़ें",
+              label: t("transactions.add_new"),
               onPress: () => {
                 setEditingId(null);
                 setFormData({ name: "", price: "", stock: "", category: "" });
@@ -260,9 +262,9 @@ export const InventoryScreen: React.FC = () => {
 
               <View style={styles.productDetails}>
                 <View style={styles.detailItem}>
-                  <Text style={styles.detailLabel}>कीमत</Text>
+                  <Text style={styles.detailLabel}>{t("transactions.amount")}</Text>
                   <Text style={styles.detailValue}>
-                    ₹{item.price.toLocaleString('hi-IN')}
+                    ₹{item.price.toLocaleString()}
                   </Text>
                 </View>
               </View>
@@ -271,14 +273,14 @@ export const InventoryScreen: React.FC = () => {
 
               <View style={styles.productActions}>
                 <Button
-                  title="संपादित करें"
+                  title={t("common.edit")}
                   onPress={() => handleEditProduct(item)}
                   variant="secondary"
                   size="small"
                   style={{ flex: 1, marginRight: SIZES.md }}
                 />
                 <Button
-                  title="हटाएँ"
+                  title={t("common.delete")}
                   onPress={() => handleDeleteProduct(item.id)}
                   variant="danger"
                   size="small"

@@ -23,12 +23,14 @@ import {
     TouchableOpacity,
     View
 } from "react-native";
+import { useTranslation } from "react-i18next";
 
 interface CustomerWithBalance extends db.Customer {
   balance?: number;
 }
 
 export const CustomersScreen: React.FC = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [customers, setCustomers] = useState<CustomerWithBalance[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,7 +76,7 @@ export const CustomersScreen: React.FC = () => {
 
   const handleAddCustomer = async () => {
     if (!formData.name.trim()) {
-      Alert.alert("त्रुटि", "कृपया ग्राहक का नाम दर्ज करें");
+      Alert.alert(t("common.error"), "Please enter customer name");
       return;
     }
 
@@ -86,13 +88,13 @@ export const CustomersScreen: React.FC = () => {
         formData.address || undefined,
       );
 
-      Alert.alert("सफल", "ग्राहक सफलतापूर्वक जोड़ा गया");
+      Alert.alert(t("common.success"), t("messages.contact_added"));
       setFormData({ name: "", phone: "", email: "", address: "" });
       setShowAddForm(false);
       loadCustomers();
     } catch (error) {
       console.error("Failed to add customer:", error);
-      Alert.alert("त्रुटि", "ग्राहक जोड़ने में विफल");
+      Alert.alert(t("common.error"), "Failed to add customer");
     }
   };
 
@@ -108,7 +110,7 @@ export const CustomersScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header
-        title={LABELS_HI.customers}
+        title={t("contacts.title")}
         rightElement={
           <TouchableOpacity
             onPress={() => setShowAddForm(!showAddForm)}
@@ -121,18 +123,18 @@ export const CustomersScreen: React.FC = () => {
 
       {showAddForm && (
         <Card style={styles.formCard}>
-          <Text style={styles.formTitle}>नया ग्राहक जोड़ें</Text>
+          <Text style={styles.formTitle}>{t("contacts.add_new")}</Text>
 
           <TextInput
-            label={LABELS_HI.customerName}
-            placeholder="नाम दर्ज करें"
+            label={t("contacts.name")}
+            placeholder="Enter name"
             value={formData.name}
             onChangeText={(name: string) => setFormData({ ...formData, name })}
           />
 
           <TextInput
-            label={LABELS_HI.phone}
-            placeholder="फोन नंबर"
+            label={t("contacts.phone")}
+            placeholder="Phone number"
             value={formData.phone}
             onChangeText={(phone: string) =>
               setFormData({ ...formData, phone })
@@ -141,8 +143,8 @@ export const CustomersScreen: React.FC = () => {
           />
 
           <TextInput
-            label={LABELS_HI.email}
-            placeholder="ईमेल (वैकल्पिक)"
+            label={t("contacts.email")}
+            placeholder="Email (optional)"
             value={formData.email}
             onChangeText={(email: string) =>
               setFormData({ ...formData, email })
@@ -151,8 +153,8 @@ export const CustomersScreen: React.FC = () => {
           />
 
           <TextInput
-            label={LABELS_HI.address}
-            placeholder="पता (वैकल्पिक)"
+            label={t("common.app_name")}
+            placeholder="Address (optional)"
             value={formData.address}
             onChangeText={(address: string) =>
               setFormData({ ...formData, address })
@@ -163,12 +165,12 @@ export const CustomersScreen: React.FC = () => {
 
           <View style={styles.formButtons}>
             <Button
-              title={LABELS_HI.save}
+              title={t("common.save")}
               onPress={handleAddCustomer}
               style={{ flex: 1, marginRight: SIZES.md }}
             />
             <Button
-              title={LABELS_HI.cancel}
+              title={t("common.cancel")}
               onPress={() => {
                 setShowAddForm(false);
                 setFormData({ name: "", phone: "", email: "", address: "" });
@@ -184,10 +186,10 @@ export const CustomersScreen: React.FC = () => {
         <View style={styles.emptyContainer}>
           <EmptyState
             icon="👥"
-            title="कोई ग्राहक नहीं"
-            subtitle="अपने पहले ग्राहक को जोड़ने के लिए नीचे का बटन दबाएं"
+            title={t("contacts.no_contacts")}
+            subtitle="Add your first contact to get started"
             action={{
-              label: "नया ग्राहक जोड़ें",
+              label: t("contacts.add_new"),
               onPress: () => setShowAddForm(true),
             }}
           />
@@ -211,7 +213,7 @@ export const CustomersScreen: React.FC = () => {
                       <Text style={styles.customerName}>{item.name}</Text>
                       {item.balance !== undefined && item.balance > 0 && (
                         <Badge
-                          label={`बकाया: ₹${item.balance.toLocaleString('hi-IN')}`}
+                          label={`${t("dashboard.pending")}: ₹${item.balance.toLocaleString()}`}
                           variant="pending"
                           size="small"
                         />

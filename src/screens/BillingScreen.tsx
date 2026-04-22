@@ -21,6 +21,7 @@ import {
     TouchableOpacity,
     View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 
 interface BillingItem {
   productId: number;
@@ -31,6 +32,7 @@ interface BillingItem {
 }
 
 export const BillingScreen: React.FC = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [products, setProducts] = useState<db.Product[]>([]);
   const [customers, setCustomers] = useState<db.Customer[]>([]);
@@ -52,7 +54,7 @@ export const BillingScreen: React.FC = () => {
         setCustomers(customersData);
       } catch (error) {
         console.error("Failed to load data:", error);
-        Alert.alert("त्रुटि", "डेटा लोड करने में विफल");
+        Alert.alert(t("common.error"), "Failed to load data");
       } finally {
         setLoading(false);
       }
@@ -62,7 +64,7 @@ export const BillingScreen: React.FC = () => {
 
   const addItemToBill = () => {
     if (!selectedProduct || !quantity) {
-      Alert.alert("त्रुटि", "कृपया उत्पाद और मात्रा चुनें");
+      Alert.alert(t("common.error"), "Please select product and quantity");
       return;
     }
 
@@ -70,7 +72,7 @@ export const BillingScreen: React.FC = () => {
     if (!product) return;
 
     if (parseInt(quantity) > product.stock) {
-      Alert.alert("त्रुटि", "अपर्याप्त स्टॉक उपलब्ध");
+      Alert.alert(t("common.error"), "Insufficient stock");
       return;
     }
 
@@ -116,7 +118,7 @@ export const BillingScreen: React.FC = () => {
 
   const saveBill = async () => {
     if (billingItems.length === 0) {
-      Alert.alert("त्रुटि", "कृपया कम से कम एक आइटम जोड़ें");
+      Alert.alert(t("common.error"), "Please add at least one item");
       return;
     }
 
@@ -148,9 +150,9 @@ export const BillingScreen: React.FC = () => {
         }
       }
 
-      Alert.alert("सफल", "बिल सफलतापूर्वक सहेजा गया", [
+      Alert.alert(t("common.success"), t("messages.transaction_added"), [
         {
-          text: "ठीक है",
+          text: t("common.ok"),
           onPress: () => {
             setBillingItems([]);
             setSelectedCustomer(null);
@@ -161,7 +163,7 @@ export const BillingScreen: React.FC = () => {
       ]);
     } catch (error) {
       console.error("Failed to save bill:", error);
-      Alert.alert("त्रुटि", "बिल सहेजने में विफल");
+      Alert.alert(t("common.error"), "Failed to save bill");
     }
   };
 
@@ -183,43 +185,43 @@ export const BillingScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <Header title={LABELS_HI.createBill} />
+      <Header title={t("transactions.add_new")} />
 
       <ScrollView style={styles.content}>
         {/* Customer Selection */}
         <Card>
           <Dropdown
-            label={LABELS_HI.selectCustomer}
+            label={t("contacts.name")}
             options={customerOptions}
             value={selectedCustomer}
             onSelect={setSelectedCustomer}
-            placeholder="ग्राहक चुनें (वैकल्पिक)"
+            placeholder="Select customer (optional)"
           />
         </Card>
 
         {/* Product Selection */}
         <Card>
-          <Text style={styles.sectionTitle}>आइटम जोड़ें</Text>
+          <Text style={styles.sectionTitle}>{t("dashboard.add_transaction")}</Text>
 
           <Dropdown
-            label={LABELS_HI.selectProduct}
+            label={t("transactions.amount")}
             options={productOptions}
             value={selectedProduct}
             onSelect={setSelectedProduct}
-            placeholder="उत्पाद चुनें"
+            placeholder="Select product"
             style={{ marginBottom: SIZES.md }}
           />
 
           <TextInput
-            label={LABELS_HI.quantity}
-            placeholder="मात्रा दर्ज करें"
+            label={t("transactions.amount")}
+            placeholder="Enter quantity"
             value={quantity}
             onChangeText={setQuantity}
             keyboardType="numeric"
           />
 
           <Button
-            title={LABELS_HI.addItem}
+            title={t("common.add")}
             onPress={addItemToBill}
             style={{ marginBottom: 0 }}
           />
@@ -229,8 +231,8 @@ export const BillingScreen: React.FC = () => {
         {billingItems.length > 0 && (
           <Card variant="elevated" animated>
             <View style={styles.itemsHeader}>
-              <Text style={styles.sectionTitle}>बिल आइटम</Text>
-              <Badge label={`${billingItems.length} आइटम`} variant="info" />
+              <Text style={styles.sectionTitle}>{t("transactions.title")}</Text>
+              <Badge label={`${billingItems.length} ${t("common.add")}`} variant="info" />
             </View>
             <FlatList
               scrollEnabled={false}
@@ -264,13 +266,13 @@ export const BillingScreen: React.FC = () => {
         {/* Totals */}
         <Card variant="elevated" animated style={styles.summaryCard}>
           <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>कुल:</Text>
+            <Text style={styles.totalLabel}>{t("reports.total_given")}:</Text>
             <CurrencyDisplay amount={subtotal} />
           </View>
 
           <TextInput
-            label={LABELS_HI.discount}
-            placeholder="छूट राशि"
+            label={t("transactions.amount")}
+            placeholder="Discount amount"
             value={discount}
             onChangeText={setDiscount}
             keyboardType="decimal-pad"
@@ -279,12 +281,12 @@ export const BillingScreen: React.FC = () => {
           <View style={styles.summaryDivider} />
 
           <View style={styles.finalTotal}>
-            <Text style={styles.finalTotalLabel}>कुल राशि:</Text>
-            <Text style={styles.finalTotalAmount}>₹{total.toLocaleString('hi-IN')}</Text>
+            <Text style={styles.finalTotalLabel}>{t("reports.total_given")}:</Text>
+            <Text style={styles.finalTotalAmount}>₹{total.toLocaleString()}</Text>
           </View>
           
           {selectedCustomer && (
-            <Badge label="उधार पर बिल" variant="warning" style={styles.udhaarBadge} />
+            <Badge label={t("reports.summary")} variant="warning" style={styles.udhaarBadge} />
           )}
         </Card>
 
@@ -292,12 +294,12 @@ export const BillingScreen: React.FC = () => {
         {billingItems.length > 0 && (
           <View style={styles.actionButtons}>
             <Button
-              title={LABELS_HI.saveBill}
+              title={t("common.save")}
               onPress={saveBill}
               style={{ marginBottom: SIZES.md }}
             />
             <Button
-              title="रद्द करें"
+              title={t("common.cancel")}
               onPress={() => {
                 setBillingItems([]);
                 setSelectedCustomer(null);

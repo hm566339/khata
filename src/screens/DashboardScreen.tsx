@@ -12,6 +12,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useTranslation } from "react-i18next";
 
 interface DashboardStats {
   todaySales: number;
@@ -21,6 +22,7 @@ interface DashboardStats {
 }
 
 export const DashboardScreen: React.FC = () => {
+  const { t } = useTranslation();
   const router = useRouter();
   const [stats, setStats] = useState<DashboardStats>({
     todaySales: 0,
@@ -65,8 +67,8 @@ export const DashboardScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <Header
-        title={LABELS_HI.dashboard}
-        subtitle={new Date().toLocaleDateString("hi-IN")}
+        title={t("dashboard.title")}
+        subtitle={new Date().toLocaleDateString()}
       />
 
       <ScrollView
@@ -81,8 +83,8 @@ export const DashboardScreen: React.FC = () => {
           <View style={styles.greetingContent}>
             <Text style={styles.greetingEmoji}>🙏</Text>
             <View style={styles.greetingText}>
-              <Text style={styles.greeting}>नमस्ते!</Text>
-              <Text style={styles.greetingSubtitle}>आपकी दुकान आज तैयार है</Text>
+              <Text style={styles.greeting}>{t("dashboard.welcome")}</Text>
+              <Text style={styles.greetingSubtitle}>{t("dashboard.total_balance")}</Text>
             </View>
           </View>
         </Card>
@@ -91,16 +93,16 @@ export const DashboardScreen: React.FC = () => {
         <View style={styles.statsGrid}>
           <StatCard
             icon="💰"
-            label={LABELS_HI.todaysSales}
-            value={`₹${stats.todaySales.toLocaleString('hi-IN')}`}
+            label={t("dashboard.given")}
+            value={`₹${stats.todaySales.toLocaleString()}`}
             color={COLORS.primary}
             style={styles.statCardSmall}
             animateValue
           />
           <StatCard
             icon="📊"
-            label={LABELS_HI.totalCredit}
-            value={`₹${stats.totalUdhaar.toLocaleString('hi-IN')}`}
+            label={t("dashboard.taken")}
+            value={`₹${stats.totalUdhaar.toLocaleString()}`}
             color={COLORS.secondary}
             style={styles.statCardSmall}
             animateValue
@@ -110,7 +112,7 @@ export const DashboardScreen: React.FC = () => {
         <View style={styles.statsGrid}>
           <StatCard
             icon="📦"
-            label={LABELS_HI.lowStockItems}
+            label={t("dashboard.settled")}
             value={`${stats.lowStockCount}`}
             color={COLORS.warning}
             style={styles.statCardSmall}
@@ -118,7 +120,7 @@ export const DashboardScreen: React.FC = () => {
           />
           <StatCard
             icon="👥"
-            label={LABELS_HI.totalCustomers}
+            label={t("dashboard.pending")}
             value={`${stats.totalCustomers}`}
             color={COLORS.secondary}
             style={styles.statCardSmall}
@@ -128,18 +130,18 @@ export const DashboardScreen: React.FC = () => {
 
         {/* Quick Actions */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>{LABELS_HI.quickActions}</Text>
+          <Text style={styles.sectionTitle}>{t("dashboard.add_transaction")}</Text>
 
           <View style={styles.actionGrid}>
             <ActionCard
               icon="📝"
-              label={LABELS_HI.newBill}
+              label={t("transactions.add_new")}
               backgroundColor={COLORS.primary}
               onPress={() => router.push("/billing")}
             />
             <ActionCard
               icon="➕"
-              label={LABELS_HI.addCustomer}
+              label={t("contacts.add_new")}
               backgroundColor={COLORS.secondary}
               onPress={() => router.push("/customers")}
             />
@@ -148,13 +150,13 @@ export const DashboardScreen: React.FC = () => {
           <View style={styles.actionGrid}>
             <ActionCard
               icon="💳"
-              label={LABELS_HI.addCredit}
+              label={t("dashboard.add_transaction")}
               backgroundColor="#F59E0B"
               onPress={() => router.push("/customers")}
             />
             <ActionCard
               icon="📦"
-              label={LABELS_HI.addProduct}
+              label={t("dashboard.add_transaction")}
               backgroundColor={COLORS.primary}
               onPress={() => router.push("/inventory")}
             />
@@ -165,17 +167,17 @@ export const DashboardScreen: React.FC = () => {
         <View style={styles.infoSection}>
           <Card style={styles.infoCard}>
             <View style={styles.infoContent}>
-              <Text style={styles.infoTitle}>आज का सारांश</Text>
+              <Text style={styles.infoTitle}>{t("reports.summary")}</Text>
               {stats.todaySales > 0 && (
                 <Badge
-                  label={`${LABELS_HI.todaysSales}: ₹${stats.todaySales}`}
+                  label={`${t("dashboard.given")}: ₹${stats.todaySales}`}
                   variant="success"
                   style={styles.infoBadge}
                 />
               )}
               {stats.totalUdhaar > 0 && (
                 <Badge
-                  label={`${LABELS_HI.totalCredit}: ₹${stats.totalUdhaar}`}
+                  label={`${t("dashboard.taken")}: ₹${stats.totalUdhaar}`}
                   variant="warning"
                   style={styles.infoBadge}
                 />
